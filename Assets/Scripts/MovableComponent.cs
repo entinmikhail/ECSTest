@@ -36,6 +36,9 @@ public class DestroyEnemySystem : IEcsRunSystem
     private readonly EcsWorld _world = null;
     private EcsFilter<DestroyEnemyComponent, FoodBarComponent> _destroyFilter = null;
 
+    private GameObject _predator = Resources.Load<GameObject>("Predator");
+    private GameObject _bacterium = Resources.Load<GameObject>("Bacterium");
+    
     public void Run()
     {
         foreach (var i in _destroyFilter)
@@ -57,12 +60,12 @@ public class DestroyEnemySystem : IEcsRunSystem
 
                     if (Random.Range(1, 100) > 98 || foodBar.ID == "Predator")
                     {
-                        var go =  Object.Instantiate(Resources.Load<GameObject>("Predator"),
+                        var go =  Object.Instantiate(_predator,
                             enemy._levelObject.transform.position, Quaternion.identity); 
                     }
                     else
                     {
-                        var go =  Object.Instantiate(Resources.Load<GameObject>("Bacterium"),
+                        var go =  Object.Instantiate(_bacterium,
                             enemy._levelObject.transform.position, Quaternion.identity); 
                     }
                 }
@@ -73,7 +76,10 @@ public class DestroyEnemySystem : IEcsRunSystem
 
 public class TimerSystem : IEcsRunSystem
 {
+    
     private EcsFilter<DestroyComponent> _movebleFilter = null;
+
+    private GameObject _foodGo = Resources.Load<GameObject>("Food");
     public void Run()
     {
         foreach (var i in _movebleFilter)
@@ -90,15 +96,15 @@ public class TimerSystem : IEcsRunSystem
                 {
                     for (int j = 0; j < 6; j++)
                     {
-                        var goFood = Object.Instantiate(Resources.Load<GameObject>("Food"),
-                            go.transform.position + new Vector3(Random.value, Random.value, 0), Quaternion.identity);
+                        var goFood = Object.Instantiate(_foodGo, 
+                            go.transform.position + new Vector3(Random.value, Random.value, 0),
+                            Quaternion.identity);
                         goFood.GetComponent<SpriteRenderer>().color = Color.red;
                     }
                 }
                 else
                 {
-                    var goFood = Object.Instantiate(Resources.Load<GameObject>("Food"),
-                        go.transform.position, Quaternion.identity);
+                    var goFood = Object.Instantiate(_foodGo, go.transform.position, Quaternion.identity);
                     goFood.GetComponent<SpriteRenderer>().color = Color.red;
                 }
 
@@ -190,7 +196,11 @@ public class MovementSystem : IEcsRunSystem
     {
         foreach (var i in _movebleFilter)
         {
-            if (_movebleFilter.Get1(i).ModelTransform == null) continue;
+            if (_movebleFilter.Get1(i).ModelTransform == null)
+            {
+                _movebleFilter.GetEntity(i).Destroy();
+                continue;
+            }
 
             ref var modelComponent = ref _movebleFilter.Get1(i);
             ref var directionComponent = ref _movebleFilter.Get2(i);
