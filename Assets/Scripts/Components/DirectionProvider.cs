@@ -11,8 +11,6 @@ namespace DefaultNamespace
         public Vector2 Direction;
         public Vector3 RandomDirection;
         public bool IsRandomDirectionSet;
-        public bool IsFood => _levelObject.IsFood ;
-        public Collider2D Target => _levelObject.Target;
         public Queue<Collider2D> Coliders => _levelObject.Colliders;
         [SerializeField] public LevelObject _levelObject;
     }
